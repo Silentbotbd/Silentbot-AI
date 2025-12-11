@@ -71,11 +71,16 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 }}
               >
                 <span className="cursor-pointer rounded-md px-2 font-semibold text-lg hover:bg-muted">
-                  Chatbot
+                  Silentbot-AI
                 </span>
+                {user?.plan === 'pro' && (
+                  <span className="ml-2 rounded-full bg-yellow-500 px-2 py-1 text-xs font-semibold text-yellow-900">
+                    Pro
+                  </span>
+                )}
               </Link>
               <div className="flex flex-row gap-1">
-                {user && (
+                {user?.plan === 'pro' && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button

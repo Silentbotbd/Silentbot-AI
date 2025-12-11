@@ -7,12 +7,14 @@ import { createGuestUser, getUser } from "@/lib/db/queries";
 import { authConfig } from "./auth.config";
 
 export type UserType = "guest" | "regular";
+export type PlanType = "normal" | "pro";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
       type: UserType;
+      plan: PlanType;
     } & DefaultSession["user"];
   }
 
@@ -21,6 +23,7 @@ declare module "next-auth" {
     id?: string;
     email?: string | null;
     type: UserType;
+    plan: PlanType;
   }
 }
 
@@ -28,6 +31,7 @@ declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
     id: string;
     type: UserType;
+    plan: PlanType;
   }
 }
 
@@ -62,7 +66,7 @@ export const {
           return null;
         }
 
-        return { ...user, type: "regular" };
+        return { ...user, type: "regular", plan: process.env.DEFAULT_USER_PLAN ?? "normal" };
       },
     }),
     Credentials({
@@ -70,7 +74,7 @@ export const {
       credentials: {},
       async authorize() {
         const [guestUser] = await createGuestUser();
-        return { ...guestUser, type: "guest" };
+        return { ...guestUser, type: "guest", plan: process.env.DEFAULT_USER_PLAN ?? "normal" };
       },
     }),
   ],
@@ -79,6 +83,7 @@ export const {
       if (user) {
         token.id = user.id as string;
         token.type = user.type;
+        token.plan = user.plan;
       }
 
       return token;
@@ -87,6 +92,7 @@ export const {
       if (session.user) {
         session.user.id = token.id;
         session.user.type = token.type;
+        session.user.plan = token.plan;
       }
 
       return session;
