@@ -52,9 +52,8 @@ let globalStreamContext: ResumableStreamContext | null = null;
 const getTokenlensCatalog = cache(
   async (): Promise<ModelCatalog | undefined> =>{
     try { 
-      return await fetchModels();
-     }{catch (err,export default nextConfig){
-      console.warn(
+      return await fetchModels(export default nextConfig);
+     } {catch (err) {console.warn (
         "TokenLens: catalog fetch failed, using default catalog",
         err
       );
