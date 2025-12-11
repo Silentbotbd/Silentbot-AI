@@ -306,7 +306,7 @@ export async function POST(request: Request) {
       return new ChatSDKError("bad_request:activate_gateway").toResponse();
     }
 
-    console.error("Unhandled error in chat API:", error, { vercelId });
+    console.error("Unhandled error in chat API:https://silentbotai.com/api/chat", error, { vercelId });
     return new ChatSDKError("offline:chat").toResponse();
   }
 }
