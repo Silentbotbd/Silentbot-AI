@@ -1,3 +1,4 @@
+import MyStatsig from "./my-statsig";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
@@ -79,7 +80,9 @@ export default function RootLayout({
           enableSystem
         >
           <Toaster position="top-center" />
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+            <MyStatsig>{children}</MyStatsig>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>
