@@ -1,71 +1,38 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Next.js 14 and App Router-ready AI chatbot." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Chat SDK</h1>
-</a>
+# 🤖 Silent Bot AI (Production Edition)
 
-<p align="center">
-    Chat SDK is a free, open-source template built with Next.js and the AI SDK that helps you quickly build powerful chatbot applications.
-</p>
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=for-the-badge&logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?style=for-the-badge&logo=openai)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)
 
-<p align="center">
-  <a href="https://chat-sdk.dev"><strong>Read Docs</strong></a> ·
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#model-providers"><strong>Model Providers</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#running-locally"><strong>Running locally</strong></a>
-</p>
-<br/>
+> **The All-in-One Secure AI Assistant.** > Featuring a built-in Web Interface, CLI capabilities, and enterprise-grade security with Hostion integration.
 
-## Features
+---
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://ai-sdk.dev/docs/introduction)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports xAI (default), OpenAI, Fireworks, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Neon Serverless Postgres](https://vercel.com/marketplace/neon) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
-- [Auth.js](https://authjs.dev)
-  - Simple and secure authentication
+## 🌟 Overview
 
-## Model Providers
+**Silent Bot AI** is a robust, high-performance AI backend built on **FastAPI**. It is designed for instant deployment on cloud platforms (Render, Railway, Heroku) and includes a seamless web interface for end-users.
 
-This template uses the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) to access multiple AI models through a unified interface. The default configuration includes [xAI](https://x.ai) models (`grok-2-vision-1212`, `grok-3-mini`) routed through the gateway.
+It features a unique **Dual-Mode System**:
+* **🟢 Normal Mode:** Fast, concise responses for everyday tasks.
+* **🔴 Pro Production Mode:** (Locked) Unlocks advanced architectural reasoning and expanded token limits.
 
-### AI Gateway Authentication
+## ✨ Key Features
 
-**For Vercel deployments**: Authentication is handled automatically via OIDC tokens.
+* **⚡ Zero-Config Deployment:** Ready to run immediately with embedded configurations.
+* **🔐 Hostion Security:** Integrated verification using `X-Hostion-Key` headers.
+* **🌐 Integrated Web UI:** No separate frontend required; the HTML/JS is embedded and served automatically.
+* **🛡️ Rate Limiting:** Protects your API from abuse with per-user tracking.
+* **🚀 GPT-4o Powered:** Pre-configured to use the latest OpenAI models.
+* **🔑 Pro Mode System:** Built-in locking mechanism requiring a unique access code to unlock full capabilities.
 
-**For non-Vercel deployments**: You need to provide an AI Gateway API key by setting the `AI_GATEWAY_API_KEY` environment variable in your `.env.local` file.
+---
 
-With the [AI SDK](https://ai-sdk.dev/docs/introduction), you can also switch to direct LLM providers like [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://ai-sdk.dev/providers/ai-sdk-providers) with just a few lines of code.
+## 🚀 Quick Start (Local)
 
-## Deploy Your Own
+To run Silent Bot on your local machine:
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/templates/next.js/nextjs-ai-chatbot)
-
-## Running locally
-
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
-
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various AI and authentication provider accounts.
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
-
+### 1. Clone the Repository
 ```bash
-pnpm install
-pnpm db:migrate # Setup database or apply latest database changes
-pnpm dev
-```
-
-Your app template should now be running on [localhost:3000](http://localhost:3000).
+git clone https://github.com/Silentbotbd/Silentbot-AI.git
+cd Silentbot-AI
