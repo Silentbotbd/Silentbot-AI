@@ -1,0 +1,157 @@
+
+     1 <!DOCTYPE html>
+     2 <html lang="en">
+     3 <head>
+     4   <meta charset="UTF-8" />
+     5   <title>Silent Bot</title>
+     6   <style>
+     7     body { font-family: sans-serif; background-color: #f5f5f5; color: #333; margin: 20px; }
+     8     .card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px
+       rgba(0,0,0,0.1); }
+     9     .label { font-size: 0.8em; color: #666; margin-bottom: 5px; }
+    10     .value { font-weight: bold; }
+    11     textarea, input { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; margin-top: 5px; }
+    12     button { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; curso
+       pointer; margin-top: 10px; }
+    13     button.secondary { background-color: #6c757d; }
+    14     .output { background: #eee; padding: 10px; border-radius: 4px; margin-top: 10px; white-space: pre-wrap;
+       max-height: 200px; overflow-y: auto; }
+    15     .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.7em; margin-right: 5px; }
+    16     .badge-normal { background-color: #ccc; }
+    17     .badge-pro { background-color: #28a745; color: white; }
+    18     .badge-locked { background-color: #dc3545; color: white; }
+    19   </style>
+    20 </head>
+    21 <body>
+    22   <h1>Silent Bot</h1>
+    23
+    24   <div id="modeBadge" class="badge badge-normal">NORMAL MODE</div>
+    25   <div id="proBadge" class="badge badge-locked">PRO PRODUCTION MODE LOCKED</div>
+    26
+    27   <div class="card">
+    28     <div class="label">User ID</div>
+    29     <div class="value" id="userId">loading...</div>
+    30     <div class="label">Pro Status</div>
+    31     <div class="value" id="proStatus">loading...</div>
+    32   </div>
+    33
+    34   <div class="card">
+    35     <div class="label">Chat with Silent Bot</div>
+    36     <textarea id="inputMessage" placeholder="Type your message..."></textarea>
+    37     <button id="sendBtn">Send</button>
+    38     <div class="output" id="outputArea"></div>
+    39   </div>
+    40
+    41   <div class="card">
+    42     <div class="label">Pro Production Mode</div>
+    43     <input id="proCode" type="text" placeholder="Enter Pro Code" />
+    44     <button class="secondary" id="unlockBtn">Unlock Pro</button>
+    45     <div class="small" id="unlockResult"></div>
+    46   </div>
+    47
+    48   <script>
+    49     const API_URL = window.location.origin;
+    50
+    51     function getClientId() {
+    52       let id = localStorage.getItem("silentbotClientId");
+    53       if (!id) {
+    54         id = crypto.randomUUID();
+    55         localStorage.setItem("silentbotClientId", id);
+    56       }
+    57       return id;
+    58     }
+    59
+    60     const clientId = getClientId();
+    61
+    62     async function fetchMe() {
+    63       const res = await fetch(API_URL + "/me", {
+    64         headers: { "X-Client-Id": clientId }
+    65       });
+    66       const data = await res.json();
+    67       updateStatusUI(data);
+    68     }
+    69
+    70     function updateStatusUI(data) {
+    71       document.getElementById("userId").textContent = data.user_id;
+    72       const proStatus = data.is_pro ? "Unlocked ✅" : "Locked 🔒";
+    73       document.getElementById("proStatus").textContent = proStatus;
+    74
+    75       const modeBadge = document.getElementById("modeBadge");
+    76       const proBadge = document.getElementById("proBadge");
+    77
+    78       if (data.is_pro) {
+    79         modeBadge.textContent = "PRO PRODUCTION MODE ✅";
+    80         modeBadge.className = "badge badge-pro";
+    81         proBadge.textContent = "PRO MODE ACTIVE";
+    82         proBadge.className = "badge badge-pro";
+    83       } else {
+    84         modeBadge.textContent = "NORMAL MODE";
+    85         modeBadge.className = "badge badge-normal";
+    86         proBadge.textContent = "PRO PRODUCTION MODE LOCKED";
+    87         proBadge.className = "badge badge-locked";
+    88       }
+    89     }
+    90
+    91     async function sendMessage() {
+    92       const input = document.getElementById("inputMessage");
+    93       const output = document.getElementById("outputArea");
+    94       const text = input.value.trim();
+    95       if (!text) return;
+    96
+    97       output.textContent += "> " + text + "\n\n";
+    98       input.value = "";
+    99
+   100       const res = await fetch(API_URL + "/chat", {
+   101         method: "POST",
+   102         headers: {
+   103           "Content-Type": "application/json",
+   104           "X-Client-Id": clientId
+   105         },
+   106         body: JSON.stringify({
+   107           mode: "auto",
+   108           messages: [{ role: "user", content: text }]
+   109         })
+   110       });
+   111
+   112       if (!res.ok) {
+   113         output.textContent += "[Error talking to Silent Bot]\n\n";
+   114         return;
+   115       }
+   116
+   117       const data = await res.json();
+   118       output.textContent += "Silent Bot:\n" + data.response + "\n\n";
+   119       output.scrollTop = output.scrollHeight;
+   120     }
+   121
+   122     async function unlockPro() {
+   123       const codeInput = document.getElementById("proCode");
+   124       const result = document.getElementById("unlockResult");
+   125       const code = codeInput.value.trim();
+   126       if (!code) return;
+   127
+   128       const res = await fetch(API_URL + "/activate_pro", {
+   129         method: "POST",
+   130         headers: {
+   131           "Content-Type": "application/json",
+   132           "X-Client-Id": clientId
+   133         },
+   134         body: JSON.stringify({ code })
+   135       });
+   136
+   137       if (!res.ok) {
+   138         result.textContent = "Invalid code or error.";
+   139         result.style.color = "#f87171";
+   140         return;
+   141       }
+   142
+   143       result.textContent = "Pro Mode Activated!";
+   144       result.style.color = "#4ade80";
+   145       fetchMe();
+   146     }
+   147
+   148     document.getElementById("sendBtn").addEventListener("click", sendMessage);
+   149     document.getElementById("unlockBtn").addEventListener("click", unlockPro);
+   150     fetchMe();
+   151   </script>
+   152 </body>
+   153 </html>
