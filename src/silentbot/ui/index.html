@@ -1,44 +1,373 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SilentBot Enterprise</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <title>Silent Bot Enterprise</title>
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at top, #141e30, #0a0f1a);
+      --card-bg: rgba(15, 23, 42, 0.95);
+      --border-color: #1f2937;
+      --accent-color: #00e5ff;
+      --success-color: #00c853;
+    }
+    body {
+      background: var(--bg-gradient);
+      color: #f5f5f5;
+      font-family: "Consolas", "Fira Code", monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .banner {
+      white-space: pre;
+      font-size: 10px;
+      color: var(--accent-color);
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+    }
+    .badge {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: inline-block;
+      margin-bottom: 10px;
+      margin-right: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .badge-normal { background: #334155; color: #fff; }
+    .badge-pro { background: var(--success-color); color: #000; font-weight: bold; box-shadow: 0 0 10px rgba(0, 200, 83, 0.4); }
+    .badge-locked { background: #b91c1c; color: #fff; }
+    
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+      opacity: 0.5;
+    }
+
+    .label {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+    }
+    .value {
+      font-size: 14px;
+      color: #e5e7eb;
+      word-break: break-all;
+      font-family: "Courier New", monospace;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      background: #020617;
+      color: #e5e7eb;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    textarea:focus { border-color: var(--accent-color); }
+    
+    .output {
+      max-height: 400px;
+      overflow-y: auto;
+      background: #020617;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      font-size: 14px;
+      white-space: pre-wrap;
+      margin-top: 12px;
+      color: #cbd5e1;
+    }
+    .output::-webkit-scrollbar { width: 8px; }
+    .output::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    
+    .btn-group { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+    
+    button {
+      background: linear-gradient(90deg, var(--accent-color), var(--success-color));
+      border: none;
+      color: #000;
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+    button:active { transform: translateY(0); }
+    
+    button.secondary {
+      background: #1e293b;
+      color: #f9fafb;
+      border: 1px solid #475569;
+    }
+    button.secondary:hover { background: #334155; box-shadow: none; }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: #020617;
+      color: #e5e7eb;
+      font-family: inherit;
+      outline: none;
+    }
+    
+    input[type="file"] {
+      display: none;
+    }
+    .file-upload-label {
+      background: #1e293b;
+      color: #94a3b8;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px dashed #475569;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    .file-upload-label:hover { border-color: var(--accent-color); color: var(--accent-color); }
+
+    .small { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+    
+    /* Logs Area */
+    #FILE-log {
+      font-size: 12px;
+      color: var(--success-color);
+      margin-bottom: 8px;
+      min-height: 14px;
+    }
+  </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 font-sans h-screen flex flex-col">
-    <header class="p-4 border-b border-white/10 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-emerald-500">SILENTBOT <span class="text-xs text-zinc-500">PRO v5.5</span></h1>
-        <div id="user-info" class="text-xs text-zinc-400">Not Logged In</div>
-    </header>
-    <main id="chat" class="flex-1 overflow-y-auto p-6 space-y-4"></main>
-    <footer class="p-4 border-t border-white/10">
-        <div class="max-w-4xl mx-auto flex gap-2">
-            <input id="input" class="flex-1 bg-zinc-900 border border-white/10 rounded-lg p-3 outline-none focus:border-emerald-500" placeholder="Ask anything...">
-            <button onclick="send()" class="bg-emerald-600 px-6 rounded-lg font-bold">SEND</button>
-        </div>
-    </footer>
-    <script>
-        async function send() {
-            const i = document.getElementById('input');
-            const val = i.value; if(!val) return;
-            append(val, 'user'); i.value = '';
-            const res = await fetch('/api/chat/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({messages: [{role: 'user', content: val}]})
-            });
+<body>
+  <div class="banner">
+███████╗██╗██╗     ███████╗███╗   ██╗████████╗
+██╔════╝██║██║     ██╔════╝████╗  ██║╚══██╔══╝
+███████╗██║██║     █████╗  ██╔██╗ ██║   ██║
+╚════██║██║██║     ██╔══╝  ██║╚██╗██║   ██║
+███████║██║███████╗███████╗██║ ╚████║   ██║
+╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝
+                 SILENT BOT AI PRO
+  </div>
+
+  <div id="modeBadge" class="badge badge-normal">NORMAL MODE</div>
+  <div id="proBadge" class="badge badge-locked">PRO PRODUCTION MODE LOCKED</div>
+
+  <div class="card">
+    <div class="label">Identity</div>
+    <div class="value" id="userId">Connecting...</div>
+    <div class="label" style="margin-top:12px;">Status</div>
+    <div class="value" id="proStatus">Initializing...</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Terminal Interface</div>
+    <div id="FILE-log"></div>
+    <div class="output" id="outputArea"></div>
+    <textarea id="inputMessage" placeholder="Enter command or query..."></textarea>
+    
+    <div class="btn-group">
+        <label for="FILE-Upload" class="file-upload-label">
+            📂 UPLOAD FILE
+        </label>
+        <input type="file" id="FILE-Upload">
+        <span id="fileName" style="font-size: 12px; color: #64748b;">No file selected</span>
+        
+        <div style="flex:1"></div>
+        <button id="sendBtn">EXECUTE</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">Production Unlock</div>
+    <div class="btn-group">
+        <input id="proCode" type="text" placeholder="Enter Activation Code" />
+        <button class="secondary" id="unlockBtn">UNLOCK</button>
+    </div>
+    <div class="small" id="unlockResult"></div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+
+    function getClientId() {
+      let id = localStorage.getItem("silentbotClientId");
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("silentbotClientId", id);
+      }
+      return id;
+    }
+
+    const clientId = getClientId();
+
+    async function fetchMe() {
+      try {
+        const res = await fetch(API_URL + "/api/users/me", {
+            headers: { "X-Client-Id": clientId }
+        });
+        if(res.ok) {
             const data = await res.json();
-            append(data.response, 'bot');
+            updateStatusUI(data);
         }
-        function append(t, r) {
-            const chat = document.getElementById('chat');
-            const d = document.createElement('div');
-            d.className = r === 'user' ? 'text-right' : 'text-left';
-            d.innerHTML = `<div class="inline-block p-3 rounded-lg ${r === 'user' ? 'bg-emerald-900/20' : 'bg-zinc-900'}">${t}</div>`;
-            chat.appendChild(d);
-            chat.scrollTop = chat.scrollHeight;
+      } catch(e) { console.error(e); }
+    }
+
+    function updateStatusUI(data) {
+      document.getElementById("userId").textContent = data.id || data.user_id;
+      const proStatus = data.is_pro ? "SYSTEM UNLOCKED ✅" : "RESTRICTED 🔒";
+      document.getElementById("proStatus").textContent = proStatus;
+
+      const modeBadge = document.getElementById("modeBadge");
+      const proBadge = document.getElementById("proBadge");
+
+      if (data.is_pro) {
+        modeBadge.textContent = "PRO PRODUCTION MODE ✅";
+        modeBadge.className = "badge badge-pro";
+        proBadge.textContent = "PRO MODE ACTIVE";
+        proBadge.className = "badge badge-pro";
+      } else {
+        modeBadge.textContent = "NORMAL MODE";
+        modeBadge.className = "badge badge-normal";
+        proBadge.textContent = "PRO PRODUCTION MODE LOCKED";
+        proBadge.className = "badge badge-locked";
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("inputMessage");
+      const output = document.getElementById("outputArea");
+      const text = input.value.trim();
+      if (!text) return;
+
+      output.textContent += "> " + text + "\n\n";
+      input.value = "";
+      
+      // Auto-scroll
+      output.scrollTop = output.scrollHeight;
+
+      try {
+          const res = await fetch(API_URL + "/api/chat/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Client-Id": clientId
+            },
+            body: JSON.stringify({
+              mode: "auto",
+              messages: [{ role: "user", content: text }]
+            })
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            output.textContent += `[ERROR: ${err.detail || "System Malfunction"}]\n\n`;
+            return;
+          }
+
+          const data = await res.json();
+          output.textContent += "SILENT BOT:\n" + data.response + "\n\n";
+          output.scrollTop = output.scrollHeight;
+      } catch(e) {
+          output.textContent += "[CONNECTION FAILED]\n\n";
+      }
+    }
+
+    async function unlockPro() {
+      const codeInput = document.getElementById("proCode");
+      const result = document.getElementById("unlockResult");
+      const code = codeInput.value.trim();
+      if (!code) return;
+
+      const res = await fetch(API_URL + "/api/users/activate?code=" + encodeURIComponent(code), {
+        method: "POST",
+        headers: { "X-Client-Id": clientId }
+      });
+
+      if (!res.ok) {
+        result.textContent = "ACCESS DENIED: Invalid Code";
+        result.style.color = "#f87171";
+        return;
+      }
+
+      result.textContent = "ACCESS GRANTED: Pro Mode Activated";
+      result.style.color = "#4ade80";
+      fetchMe();
+    }
+
+    // File Upload Logic
+    document.getElementById('FILE-Upload').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('FILE-log').textContent = "Uploading " + file.name + "...";
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        try {
+            const res = await fetch(API_URL + "/api/files/upload", {
+                method: "POST",
+                headers: { "X-Client-Id": clientId },
+                body: formData
+            });
+            
+            if(res.ok) {
+                document.getElementById('FILE-log').textContent = "✅ File uploaded successfully: " + file.name;
+            } else {
+                document.getElementById('FILE-log').textContent = "❌ Upload failed";
+            }
+        } catch(e) {
+            document.getElementById('FILE-log').textContent = "❌ Network error during upload";
         }
-    </script>
+    });
+
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+    document.getElementById("unlockBtn").addEventListener("click", unlockPro);
+    
+    // Enter key to send
+    document.getElementById("inputMessage").addEventListener("keypress", function(e) {
+        if(e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    fetchMe();
+  </script>
 </body>
 </html>
