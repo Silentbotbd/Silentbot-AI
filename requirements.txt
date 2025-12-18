@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+requests
+pydantic
+python-dotenv
+jinja2
+rich
+google-generativeai
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
+aiofiles

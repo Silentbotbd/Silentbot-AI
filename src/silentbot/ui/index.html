@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SilentBot Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 font-sans h-screen flex flex-col">
+    <header class="p-4 border-b border-white/10 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-emerald-500">SILENTBOT <span class="text-xs text-zinc-500">PRO v5.5</span></h1>
+        <div id="user-info" class="text-xs text-zinc-400">Not Logged In</div>
+    </header>
+    <main id="chat" class="flex-1 overflow-y-auto p-6 space-y-4"></main>
+    <footer class="p-4 border-t border-white/10">
+        <div class="max-w-4xl mx-auto flex gap-2">
+            <input id="input" class="flex-1 bg-zinc-900 border border-white/10 rounded-lg p-3 outline-none focus:border-emerald-500" placeholder="Ask anything...">
+            <button onclick="send()" class="bg-emerald-600 px-6 rounded-lg font-bold">SEND</button>
+        </div>
+    </footer>
+    <script>
+        async function send() {
+            const i = document.getElementById('input');
+            const val = i.value; if(!val) return;
+            append(val, 'user'); i.value = '';
+            const res = await fetch('/api/chat/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({messages: [{role: 'user', content: val}]})
+            });
+            const data = await res.json();
+            append(data.response, 'bot');
+        }
+        function append(t, r) {
+            const chat = document.getElementById('chat');
+            const d = document.createElement('div');
+            d.className = r === 'user' ? 'text-right' : 'text-left';
+            d.innerHTML = `<div class="inline-block p-3 rounded-lg ${r === 'user' ? 'bg-emerald-900/20' : 'bg-zinc-900'}">${t}</div>`;
+            chat.appendChild(d);
+            chat.scrollTop = chat.scrollHeight;
+        }
+    </script>
+</body>
+</html>
