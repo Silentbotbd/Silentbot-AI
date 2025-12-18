@@ -6,7 +6,7 @@
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)
 
 > **The All-in-One Secure AI Assistant.** > Featuring a built-in Web Interface, CLI capabilities, and enterprise-grade security with Hostion integration.
-
+Orginal Website : Http://silentbot.omline 
 ---
 
 ## 🌟 Overview
@@ -16,6 +16,8 @@
 It features a unique **Dual-Mode System**:
 * **🟢 Normal Mode:** Fast, concise responses for everyday tasks.
 * **🔴 Pro Production Mode:** (Locked) Unlocks advanced architectural reasoning and expanded token limits.
+
+VISIT WEBSITE HTTP://SILENTBOTAI.COM
 
 ## ✨ Key Features
 
