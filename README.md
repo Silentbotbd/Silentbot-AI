@@ -1,48 +1,40 @@
-- [AI SDK](https://ai-sdk.dev/docs/introduction)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports xAI (default), OpenAI, Fireworks, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Neon Serverless Postgres](https://vercel.com/marketplace/neon) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
-- [Auth.js](https://authjs.dev)
-  - Simple and secure authentication
+# 🤖 Silent Bot AI (Production Edition)
 
-## Model Providers
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=for-the-badge&logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?style=for-the-badge&logo=openai)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)
 
-This template uses the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) to access multiple AI models through a unified interface. The default configuration includes [xAI](https://x.ai) models (`grok-2-vision-1212`, `grok-3-mini`) routed through the gateway.
+> **The All-in-One Secure AI Assistant.** > Featuring a built-in Web Interface, CLI capabilities, and enterprise-grade security with Hostion integration.
+Orginal Website : Http://silentbot.omline 
+---
 
-### AI Gateway Authentication
+## 🌟 Overview
 
-**For Vercel deployments**: Authentication is handled automatically via OIDC tokens.
+**Silent Bot AI** is a robust, high-performance AI backend built on **FastAPI**. It is designed for instant deployment on cloud platforms (Render, Railway, Heroku) and includes a seamless web interface for end-users.
 
-**For non-Vercel deployments**: You need to provide an AI Gateway API key by setting the `AI_GATEWAY_API_KEY` environment variable in your `.env.local` file.
+It features a unique **Dual-Mode System**:
+* **🟢 Normal Mode:** Fast, concise responses for everyday tasks.
+* **🔴 Pro Production Mode:** (Locked) Unlocks advanced architectural reasoning and expanded token limits.
 
-With the [AI SDK](https://ai-sdk.dev/docs/introduction), you can also switch to direct LLM providers like [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://ai-sdk.dev/providers/ai-sdk-providers) with just a few lines of code.
+VISIT WEBSITE HTTP://SILENTBOTAI.COM
 
-## Deploy Your Own
+## ✨ Key Features
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
+* **⚡ Zero-Config Deployment:** Ready to run immediately with embedded configurations.
+* **🔐 Hostion Security:** Integrated verification using `X-Hostion-Key` headers.
+* **🌐 Integrated Web UI:** No separate frontend required; the HTML/JS is embedded and served automatically.
+* **🛡️ Rate Limiting:** Protects your API from abuse with per-user tracking.
+* **🚀 GPT-4o Powered:** Pre-configured to use the latest OpenAI models.
+* **🔑 Pro Mode System:** Built-in locking mechanism requiring a unique access code to unlock full capabilities.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/templates/next.js/nextjs-ai-chatbot)
+---
 
-## Running locally
+## 🚀 Quick Start (Local)
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+To run Silent Bot on your local machine:
 
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various AI and authentication provider accounts.
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
-
+### 1. Clone the Repository
 ```bash
-pnpm install
-pnpm db:migrate # Setup database or apply latest database changes
-pnpm dev
-```
-
-Your app template should now be running on [localhost:3000](http://localhost:3000).
+git clone https://github.com/Silentbotbd/Silentbot-AI.git
+cd Silentbot-AI
