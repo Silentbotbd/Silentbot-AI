@@ -21,7 +21,7 @@ class DatabaseManager:
         conn = self._get_conn()
         c = conn.cursor()
         
-        # Core Tables
+        # Ensure Schema
         c.execute("""CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT UNIQUE, email TEXT, password_hash TEXT, is_pro BOOLEAN DEFAULT 0, role TEXT DEFAULT 'user', req_count INTEGER DEFAULT 0, created_at REAL, last_login REAL, settings_json TEXT DEFAULT '{}')""")
         c.execute("""CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, user_id TEXT, title TEXT, model TEXT DEFAULT 'auto', created_at REAL, updated_at REAL, is_archived BOOLEAN DEFAULT 0, FOREIGN KEY(user_id) REFERENCES users(id))""")
         c.execute("""CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, session_id TEXT, role TEXT, content TEXT, tokens_count INTEGER DEFAULT 0, timestamp REAL, FOREIGN KEY(session_id) REFERENCES sessions(id))""")
@@ -31,7 +31,7 @@ class DatabaseManager:
         
         conn.commit()
         conn.close()
-        self.seed_knowledge()
+        self.seed_knowledge_force_update() # NEW: Force update knowledge
         self.seed_admin()
 
     def seed_admin(self):
@@ -40,127 +40,91 @@ class DatabaseManager:
             hashed = get_password_hash("SilentBotBd2025 @@>!?")
             self.create_user(username, hashed, is_pro=True, role="admin", email="gmail.com_hrd")
 
-    def seed_knowledge(self):
+    def seed_knowledge_force_update(self):
+        """Upserts the Knowledge Base to ensure the latest 'Super-Intelligent' prompts are active."""
         conn = self._get_conn()
         c = conn.cursor()
-        c.execute("SELECT count(*) FROM knowledge")
-        # Only seed if fewer than 50 entries (implies old DB)
-        if c.fetchone()[0] > 50:
-            conn.close()
-            return
         
         knowledge_base = [
-            # --- WRITING ASSISTANCE ---
-            ("Essays", "Writing", "Academic Structure", "Expert in academic structure, thesis statements, arguments, and citations (APA/MLA)."),
-            ("Creative Writing", "Writing", "Storytelling", "Expert in narrative arcs, character development, dialogue, and vivid imagery."),
-            ("Business Writing", "Writing", "Professional", "Expert in concise, persuasive business communication, proposals, and executive summaries."),
-            ("Technical Writing", "Writing", "Documentation", "Expert in clear, step-by-step technical manuals, API docs, and standard operating procedures."),
-            
-            # --- EDITING ---
-            ("Grammar", "Editing", "Correction", "Expert in strict grammar rules, punctuation, and syntax optimization."),
-            ("Tone", "Editing", "Adjustment", "Expert in tone shifting (e.g., casual to formal, aggressive to diplomatic)."),
-            ("Rewriting", "Editing", "Paraphrasing", "Expert in rephrasing for clarity, brevity, and impact while retaining meaning."),
+            # --- WEB ---
+            ("JavaScript", "Web", "Core", "You are a JavaScript Core Engineer. Focus on V8 runtime optimization, Event Loop nuances, ES2024 features, and memory leak prevention in React/Node.js."),
+            ("TypeScript", "Web", "Typed", "You are a TypeScript Architect. Enforce strict typing, use Zod for validation, advanced Generics, and 'satisfies' operator. No 'any' type."),
+            ("HTML", "Web", "Structure", "You are a Web Accessibility Expert. Ensure strict Semantic HTML5, WCAG 2.1 compliance, and perfect SEO structure."),
+            ("CSS", "Web", "Style", "You are a CSS Artist. Use Modern CSS (Layers, Nesting, Container Queries), Tailwind best practices, and 60fps animations."),
+            ("PHP", "Web", "Backend", "You are a Modern PHP Engineer. Use PHP 8.3+, strong typing, Attributes, Fiber coroutines, and Laravel 11 patterns."),
 
-            # --- PROFESSIONAL ---
-            ("Resume", "Professional", "CV Optimization", "Expert in ATS-friendly formatting, action verbs, and highlighting achievements."),
-            ("Cover Letter", "Professional", "Job Application", "Expert in persuasive, personalized cover letters that match job descriptions."),
-            ("Social Media", "Professional", "Engagement", "Expert in hooks, viral structures, and platform-specific formatting (LinkedIn/Twitter)."),
-
-            # --- PROGRAMMING: WEB ---
-            ("JavaScript", "Web", "Frontend/Backend", "Expert in ES6+, Async/Await, DOM, React ecosystem, and Node.js performance."),
-            ("TypeScript", "Web", "Strict Typing", "Expert in Interfaces, Generics, Utility Types, and strict configuration."),
-            ("HTML", "Web", "Structure", "Expert in Semantic HTML5, Accessibility (ARIA), and SEO best practices."),
-            ("CSS", "Web", "Styling", "Expert in Flexbox, Grid, Tailwind, Animations, and responsive design."),
-            ("PHP", "Web", "Backend", "Expert in Modern PHP 8.2, Laravel, Symfony, and Composer."),
-
-            # --- PROGRAMMING: SYSTEMS ---
-            ("Python", "Backend", "General Purpose", "Expert in FastAPI, Django, Data Science (Pandas/NumPy), and Automation."),
-            ("Java", "Backend", "Enterprise", "Expert in Spring Boot, JVM Internals, Multithreading, and Design Patterns."),
-            ("C++", "Systems", "Performance", "Expert in Memory Management, Pointers, STL, and Game Development (Unreal)."),
-            ("C#", "Systems", "Enterprise/Game", "Expert in .NET Core, LINQ, Async patterns, and Unity 3D."),
-            ("Go", "Systems", "Cloud Native", "Expert in Goroutines, Channels, Microservices, and gRPC."),
-            ("Rust", "Systems", "Safety", "Expert in Ownership, Borrowing, Lifetimes, and Systems Programming."),
+            # --- BACKEND/SYSTEMS ---
+            ("Python", "Backend", "Systems", "You are a Python Principal Dev. Prioritize Pydantic models, FastAPI async patterns, type hinting (mypy), and PEP8 compliance."),
+            ("Java", "Backend", "Enterprise", "You are a Java Champion. Focus on Virtual Threads (Project Loom), Spring Boot 3.2, GraalVM native images, and hexagonal architecture."),
+            ("C++", "Systems", "Performance", "You are a C++ Systems Programmer. Use C++20/23 standards, Smart Pointers (no new/delete), Move Semantics, and compile-time optimization."),
+            ("C#", "Systems", ".NET", "You are a .NET Architect. Use .NET 8, Minimal APIs, LINQ optimization, and Entity Framework Core performance tuning."),
+            ("Go", "Systems", "Cloud", "You are a Go Expert. Focus on Idiomatic Go, advanced channel patterns, context propagation, and zero-allocation parsing."),
+            ("Rust", "Systems", "Safety", "You are a Rustacean. Enforce strict ownership, use 'Anyhow' for error handling, async-std/tokio, and zero-cost abstractions."),
 
             # --- DATA & MOBILE ---
-            ("SQL", "Data", "Database", "Expert in Complex Joins, Window Functions, Indexing, and Normalization."),
-            ("Swift", "Mobile", "iOS", "Expert in SwiftUI, Combine, XCode, and iOS Design Guidelines."),
-            ("Kotlin", "Mobile", "Android", "Expert in Jetpack Compose, Coroutines, and Android SDK."),
-            ("R", "Data", "Statistics", "Expert in Statistical Modeling, ggplot2, and Data Visualization."),
+            ("SQL", "Data", "DB", "You are a DBA. Write high-performance SQL. Use CTEs, explain-analyze optimization, composite indexing, and normalized schemas."),
+            ("Swift", "Mobile", "iOS", "You are an iOS Lead. Use SwiftUI with Observation framework, Swift 6 concurrency, and strictly adhere to Apple HIG."),
+            ("Kotlin", "Mobile", "Android", "You are a Google Developer Expert. Use Jetpack Compose, Coroutines/Flow, Koin/Hilt dependency injection, and Clean Architecture."),
+            ("R", "Data", "Stats", "You are a Data Scientist. Use Tidyverse, ggplot2 for publication-quality plots, and R-Markdown for reproducible research."),
 
             # --- SCRIPTING ---
-            ("Bash", "Scripting", "Linux Shell", "Expert in Shell Scripting, Cron, Pipes, and System Admin."),
-            ("PowerShell", "Scripting", "Windows", "Expert in Cmdlets, Active Directory, and Windows Automation."),
-            ("Perl", "Scripting", "Text Processing", "Expert in Regex and Legacy System maintenance."),
-            ("Ruby", "Scripting", "Web/Scripting", "Expert in Rails, Metaprogramming, and clean syntax."),
-            ("Lua", "Scripting", "Embedded", "Expert in Game Scripting (Roblox/WoW) and lightweight embedding."),
+            ("Bash", "Scripting", "Shell", "You are a DevOps Engineer. Write safe Bash (set -euo pipefail), use shellcheck standards, and avoid subshells where possible."),
+            ("PowerShell", "Scripting", "Windows", "You are a Windows Admin. Use advanced Cmdlets, .NET interop, and Pester testing for scripts."),
+            ("Perl", "Scripting", "Legacy", "You are a Perl Monk. Write maintainable Modern Perl, use strict/warnings, and CPAN best practices."),
+            ("Ruby", "Scripting", "Dynamic", "You are a Rubyist. Focus on readability, Rails 7 conventions, Hotwire/Turbo interaction, and metaprogramming safety."),
+            ("Lua", "Scripting", "Embed", "You are a Game Scripter. Optimize Lua for high-frequency loops (Roblox/Love2D), manage tables efficiently, and avoid garbage."),
 
-            # --- NICHE ---
-            ("Fortran", "Niche", "Scientific", "Expert in High-Performance Computing and Numerical Analysis."),
-            ("COBOL", "Niche", "Legacy Business", "Expert in Mainframe systems and Transactional Processing."),
-            ("Assembly", "Niche", "Low Level", "Expert in x86/ARM Architecture, Registers, and Opcode optimization."),
-            ("Haskell", "Niche", "Functional", "Expert in Pure Functions, Monads, and Type Theory."),
-            ("Dart", "Niche", "Cross-Platform", "Expert in Flutter Widget tree and State Management."),
-            ("Scala", "Niche", "JVM Functional", "Expert in Akka, Spark, and Functional/OOP hybrid patterns.")
+            # --- OLDER/NICHE ---
+            ("Fortran", "Niche", "HPC", "You are a Numerical Analyst. Optimize for vectorization, array slicing, and MPI parallel processing."),
+            ("COBOL", "Niche", "Mainframe", "You are a Mainframe Expert. Focus on fixed-format layout, decimal precision, CICS transaction handling, and JCL."),
+            ("Pascal", "Niche", "Edu", "You are a Structured Programming Expert. Emphasize type safety, modularity, and Delphi/Free Pascal extensions."),
+            ("Assembly", "Niche", "LowLvl", "You are a Reverse Engineer. Optimize registers, understand pipeline stalls, SIMD instructions, and cache locality."),
+            ("Haskell", "Niche", "Func", "You are a Lambda Theorist. Use Monad Transformers, point-free style, and lazy evaluation profiling."),
+            ("Scala", "Niche", "JVM", "You are a Functional Architect. Use Scala 3 syntax, ZIO ecosystem, and Akka actor models."),
+            ("Dart", "Niche", "Flutter", "You are a Flutter Engineer. Optimize widget rebuilds, use Riverpod/Bloc, and isolate logic in Isolate clusters.")
         ]
 
-        c.executemany("INSERT OR IGNORE INTO knowledge (key, category, description, expert_prompt) VALUES (?, ?, ?, ?)", knowledge_base)
+        # Use REPLACE to overwrite old prompt definitions with new smarter ones
+        c.executemany("INSERT OR REPLACE INTO knowledge (key, category, description, expert_prompt) VALUES (?, ?, ?, ?)", knowledge_base)
         conn.commit()
         conn.close()
 
-    # --- MEMORY SYSTEM ---
-    def add_memory(self, user_id: str, fact: str):
-        conn = self._get_conn()
-        c = conn.cursor()
-        c.execute("INSERT INTO memory (user_id, fact, created_at) VALUES (?, ?, ?)", (user_id, fact, time.time()))
-        conn.commit()
-        conn.close()
+    # --- STANDARD METHODS (Preserved) ---
+    def add_memory(self, uid, fact):
+        conn = self._get_conn(); c = conn.cursor()
+        c.execute("INSERT INTO memory (user_id, fact, created_at) VALUES (?, ?, ?)", (uid, fact, time.time())); conn.commit(); conn.close()
 
-    def get_memory(self, user_id: str):
-        conn = self._get_conn()
-        c = conn.cursor()
-        c.execute("SELECT fact FROM memory WHERE user_id = ? ORDER BY created_at DESC LIMIT 5", (user_id,))
-        rows = c.fetchall()
-        conn.close()
+    def get_memory(self, uid):
+        conn = self._get_conn(); c = conn.cursor()
+        c.execute("SELECT fact FROM memory WHERE user_id = ? ORDER BY created_at DESC LIMIT 5", (uid,)); rows = c.fetchall(); conn.close()
         return [r[0] for r in rows]
 
-    # --- STANDARD METHODS ---
     def create_user(self, username, password_hash, is_pro=False, role="user", email=""):
-        conn = self._get_conn()
-        c = conn.cursor()
-        uid = str(uuid.uuid4())
-        try:
-            c.execute("INSERT INTO users (id, username, email, password_hash, is_pro, role, created_at, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (uid, username, email, password_hash, 1 if is_pro else 0, role, time.time(), time.time()))
-            conn.commit()
-            return self.get_user_by_id(uid)
+        conn = self._get_conn(); c = conn.cursor(); uid = str(uuid.uuid4())
+        try: c.execute("INSERT INTO users (id, username, email, password_hash, is_pro, role, created_at, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (uid, username, email, password_hash, 1 if is_pro else 0, role, time.time(), time.time())); conn.commit(); return self.get_user_by_id(uid)
         except: return None
         finally: conn.close()
 
     def get_user_by_username(self, u):
-        conn = self._get_conn(); conn.row_factory = sqlite3.Row; c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE username = ?", (u,)); row = c.fetchone(); conn.close()
+        conn = self._get_conn(); conn.row_factory = sqlite3.Row; c = conn.cursor(); c.execute("SELECT * FROM users WHERE username = ?", (u,)); row = c.fetchone(); conn.close()
         return dict(row) if row else None
 
     def get_user_by_id(self, uid):
-        conn = self._get_conn(); conn.row_factory = sqlite3.Row; c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE id = ?", (uid,)); row = c.fetchone(); conn.close()
+        conn = self._get_conn(); conn.row_factory = sqlite3.Row; c = conn.cursor(); c.execute("SELECT * FROM users WHERE id = ?", (uid,)); row = c.fetchone(); conn.close()
         return dict(row) if row else None
     
     def increment_request_count(self, uid):
-        conn = self._get_conn(); c = conn.cursor()
-        c.execute("UPDATE users SET req_count = req_count + 1 WHERE id = ?", (uid,)); conn.commit(); conn.close()
+        conn = self._get_conn(); c = conn.cursor(); c.execute("UPDATE users SET req_count = req_count + 1 WHERE id = ?", (uid,)); conn.commit(); conn.close()
 
     def make_user_pro(self, uid):
-        conn = self._get_conn(); c = conn.cursor()
-        c.execute("UPDATE users SET is_pro = 1 WHERE id = ?", (uid,)); conn.commit(); conn.close()
+        conn = self._get_conn(); c = conn.cursor(); c.execute("UPDATE users SET is_pro = 1 WHERE id = ?", (uid,)); conn.commit(); conn.close()
 
     def create_session(self, uid, title="New Chat"):
         conn = self._get_conn(); c = conn.cursor(); sid = str(uuid.uuid4())
-        c.execute("INSERT INTO sessions (id, user_id, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", (sid, uid, title, time.time(), time.time()))
-        conn.commit(); conn.close(); return sid
+        c.execute("INSERT INTO sessions (id, user_id, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", (sid, uid, title, time.time(), time.time())); conn.commit(); conn.close(); return sid
 
     def list_sessions(self, uid):
-        conn = self._get_conn(); conn.row_factory = sqlite3.Row; c = conn.cursor()
-        c.execute("SELECT * FROM sessions WHERE user_id = ? ORDER BY updated_at DESC", (uid,)); rows = c.fetchall(); conn.close()
+        conn = self._get_conn(); conn.row_factory = sqlite3.Row; c = conn.cursor(); c.execute("SELECT * FROM sessions WHERE user_id = ? ORDER BY updated_at DESC", (uid,)); rows = c.fetchall(); conn.close()
         return [dict(r) for r in rows]
 
     def add_message(self, sid, role, content):

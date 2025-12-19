@@ -10,3 +10,4 @@ passlib[bcrypt]
 python-jose[cryptography]
 python-multipart
 aiofiles
+duckduckgo-search

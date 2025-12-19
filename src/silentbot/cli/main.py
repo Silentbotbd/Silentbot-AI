@@ -71,6 +71,7 @@ def run_cli():
             continue
         if msg.startswith("/config"):
             console.print(f"User: {uid}\nPro: {is_pro}\nReqs: {user.get('req_count',0)}")
+            console.print("\n[bold]ACTIVE POLICIES:[/bold]\n1. ALLOW: read, glob, search, list\n2. ASK_USER: write, replace, shell")
             continue
 
         if not current_sid:
