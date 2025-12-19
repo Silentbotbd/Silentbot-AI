@@ -1,70 +1,100 @@
 import re
+import json
+import logging
 from typing import List, Dict, Any
 from .ai import call_ai
 from .tools import tools
 from .db import db
 
+logger = logging.getLogger("silentbot.agent")
+
 class Agent:
     def __init__(self, mode: str = "normal", user_id: str = None):
         self.mode = mode
         self.user_id = user_id
+        # "Overthinking" limit: How many steps the agent can take
+        self.max_steps = 8 if mode == "pro" else 3
 
     def run(self, user_query: str, history: List[Dict[str, str]]) -> Dict[str, Any]:
-        # 1. Retrieve Context
-        knowledge_hits = db.search_knowledge(user_query)
-        memory_hits = db.get_memory(self.user_id) if self.user_id else []
+        """
+        The Core Intelligent Loop (ReAct Pattern).
+        """
+        # 1. Context Retrieval
+        knowledge_hits = db.search_knowledge(user_query) if hasattr(db, 'search_knowledge') else []
+        memory_hits = db.get_memory(self.user_id) if self.user_id and hasattr(db, 'get_memory') else []
         
-        # 2. Build Super-Intelligent System Prompt
+        # 2. System Prompt Engineering
         system_prompt = (
-            "You are SilentBot SUPER-INTELLIGENCE (v7.0). "
-            "You are an autonomous agent capable of Deep Thinking and Real-Time Web Search.\n"
-            "TOOLS: [TOOL: web_search | query], [TOOL: calculate | expr], [TOOL: system_info].\n"
+            "You are SilentBot V5.2 ULTIMATE. "
+            "You are an autonomous, intelligent agent capable of Deep Thinking, Research, and Task Execution.\n"
+            "AVAILABLE TOOLS:\n"
+            "- [TOOL: web_search | query] -> Search the internet (DuckDuckGo/Google/Bing logic).\n"
+            "- [TOOL: scholar_search | query] -> Find academic papers and technical PDFs.\n"
+            "- [TOOL: deep_research | query] -> Perform exhaustive multi-angle research.\n"
+            "- [TOOL: calculate | expression] -> Math calculations.\n"
+            "- [TOOL: system_info] -> Get host details.\n\n"
             "PROTOCOL:\n"
-            "1. ANALYZE: Break down the user's request into core components.\n"
-            "2. SEARCH: If the request involves current events, specific libraries, or error codes, YOU MUST USE [TOOL: web_search].\n"
-            "3. EXPERTISE: Apply high-level domain knowledge (see below).\n"
-            "4. SYNTHESIZE: Provide a comprehensive, structured, and accurate answer.\n"
+            "1. THOUGHT: Analyze the request. Break it down. Check memories.\n"
+            "2. PLAN: If research is needed, use tools. Do NOT guess facts.\n"
+            "3. ACTION: Issue a [TOOL: ...] command.\n"
+            "4. OBSERVATION: Wait for result.\n"
+            "5. SYNTHESIS: Combine all findings into a perfect response.\n"
         )
         
         if self.mode == "normal":
-            system_prompt += " GUARDRAIL: DO NOT write full code files. Explain concepts only. Refuse coding tasks politely."
-        
-        if knowledge_hits:
-            skills = [f"--> {k['key']} EXPERT MODE: {k['expert_prompt']}" for k in knowledge_hits]
-            system_prompt += "\n\nACTIVE EXPERT MODULES:\n" + "\n".join(skills)
+            system_prompt += " NOTE: You are in NORMAL mode. Keep answers concise. Coding capabilities restricted."
+        else:
+            system_prompt += " NOTE: You are in PRO mode. Use full deep capabilities. Be exhaustive."
 
         if memory_hits:
-            system_prompt += "\n\nUSER MEMORY:\n" + "\n".join([f"- {m}" for m in memory_hits])
+            system_prompt += "\n\nUSER MEMORY CONTEXT:\n" + "\n".join([f"- {m}" for m in memory_hits])
 
+        # Prepare message buffer
         messages = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": user_query}]
         
-        # 3. ReAct Loop (Expanded to 5 steps for deep research)
         steps_log = []
-        for i in range(5):
-            res = call_ai(messages, mode=self.mode)
-            content = res["content"]
-            
-            # Log step
-            steps_log.append({"step": i, "content": content})
-
-            # Check for Tools
-            m = re.search(r"[TOOL: (\w+)(?: \| (.*?))?]", content)
-            if m:
-                tool_name = m.group(1)
-                tool_args = m.group(2) or ""
-                
-                # Execute Tool
-                obs = tools.execute(tool_name, tool_args)
-                
-                # Feed observation back
-                messages.append({"role": "assistant", "content": content})
-                messages.append({"role": "system", "content": f"OBSERVATION: {obs}"})
-            else:
-                return {
-                    "response": content, 
-                    "model": res["model"],
-                    "tokens": res["tokens_used"],
-                    "steps": steps_log
-                }
+        final_response = ""
         
-        return {"response": content, "model": "limit_reached", "tokens": 0, "steps": steps_log}
+        # 3. Execution Loop
+        for step_i in range(self.max_steps):
+            try:
+                # Call AI
+                res = call_ai(messages, mode=self.mode)
+                content = res["content"]
+                
+                # Check for Tool Usage
+                tool_match = re.search(r"[TOOL: (\w+)(?: \| (.*?))?]", content)
+                
+                if tool_match:
+                    # It's a tool call
+                    tool_name = tool_match.group(1)
+                    tool_args = tool_match.group(2) or ""
+                    
+                    log_entry = f"Step {step_i+1}: Using {tool_name}..."
+                    steps_log.append({"step": step_i, "content": log_entry, "type": "tool_use"})
+                    
+                    # Execute
+                    obs = tools.execute(tool_name, tool_args)
+                    
+                    # Feed back to AI
+                    messages.append({"role": "assistant", "content": content})
+                    messages.append({"role": "system", "content": f"OBSERVATION: {obs}"})
+                    
+                else:
+                    # It's the final answer (or a thought without action)
+                    # If it looks like a final answer (doesn't ask for tool), we break
+                    final_response = content
+                    steps_log.append({"step": step_i, "content": "Synthesizing Final Answer", "type": "thought"})
+                    break
+                    
+            except Exception as e:
+                logger.error(f"Agent Loop Error: {e}")
+                final_response = "I encountered an internal error while thinking. Please try again."
+                break
+        
+        return {
+            "response": final_response, 
+            "model": "silentbot-v5.2",
+            "tokens": 0,
+            "steps": steps_log
+        }

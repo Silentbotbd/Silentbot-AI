@@ -1,26 +1,29 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env
 load_dotenv()
 
 # --- PROJECT INFO ---
-VERSION = "5.5.0-PROD"
+VERSION = "5.2.0-ULTIMATE"
 PROJECT_NAME = "SilentBot AI"
 
-# --- API KEYS (Loaded from .env) ---
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+# --- API KEYS (LOADED FROM ENV ONLY - NO HARDCODED SECRETS) ---
+# Users must create a .env file based on .env.example
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-HOSTION_API_KEY = os.getenv("HOSTION_API_KEY", "")
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # --- SETTINGS ---
-DEFAULT_MODEL = os.getenv("SILENTBOT_MODEL", "gpt-4o")
-PRO_UNLOCK_CODE = os.getenv("PRO_UNLOCK_CODE", "MYSECRETPROCODE")
-ADMIN_LOG_CODE = os.getenv("ADMIN_LOG_CODE", "MRSILENT.ADMIN.LOG.VIEW.2025")
+DEFAULT_MODEL = os.getenv("SILENTBOT_MODEL", "gpt-4o") 
+# If keys are missing, system will fallback to local/mock or error gracefully
 
-NORMAL_MAX_TOKENS = 512
-PRO_MAX_TOKENS = 4096 # Increased for 2027 Pro
+# SECRETS - HIDDEN FROM SOURCE CODE
+PRO_UNLOCK_CODE = os.getenv("PRO_UNLOCK_CODE", "CHANGE_ME_IN_ENV") 
+ADMIN_LOG_CODE = os.getenv("ADMIN_LOG_CODE", "CHANGE_ME_IN_ENV")
+
+NORMAL_MAX_TOKENS = 1024
+PRO_MAX_TOKENS = 4096
 
 # --- DIRECTORIES ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
