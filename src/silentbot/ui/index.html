@@ -29,7 +29,8 @@
       text-align: center;
       margin-bottom: 20px;
       font-weight: bold;
-      text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+      transition: color 2.5s ease-in-out, text-shadow 2.5s ease-in-out;
+      text-shadow: 0 0 10px currentColor;
     }
     .badge {
       padding: 4px 12px;
@@ -170,17 +171,22 @@
       margin-bottom: 8px;
       min-height: 14px;
     }
+
+    @media (max-width: 600px) {
+      .banner { font-size: 6px; }
+      .card { padding: 10px; }
+    }
   </style>
 </head>
 <body>
-  <div class="banner">
-███████╗██╗██╗     ███████╗███╗   ██╗████████╗
-██╔════╝██║██║     ██╔════╝████╗  ██║╚══██╔══╝
-███████╗██║██║     █████╗  ██╔██╗ ██║   ██║
-╚════██║██║██║     ██╔══╝  ██║╚██╗██║   ██║
-███████║██║███████╗███████╗██║ ╚████║   ██║
-╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝
-                 SILENT BOT AI PRO
+  <div class="banner" id="mainBanner">
+  ███████╗██╗██╗     ███████╗███╗   ██╗████████╗
+  ██╔════╝██║██║     ██╔════╝████╗  ██║╚══██╔══╝
+  ███████╗██║██║     █████╗  ██╔██╗ ██║   ██║
+  ╚════██║██║██║     ██╔══╝  ██║╚██╗██║   ██║
+  ███████║██║███████╗███████╗██║ ╚████║   ██║
+  ╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝
+              SILENT BOT AI/CLI
   </div>
 
   <div id="modeBadge" class="badge badge-normal">NORMAL MODE</div>
@@ -221,6 +227,33 @@
   </div>
 
   <script>
+    // --- Banner Animation Logic ---
+    const BANNER_PALETTE = [
+        "#00e5ff", // Cyan
+        "#00ff00", // Green
+        "#ff00ff", // Magenta
+        "#ffff00", // Yellow
+        "#ff4081", // Pink
+        "#7c4dff", // Deep Purple
+        "#00bcd4", // Light Blue
+        "#64ffda"  // Teal accent
+    ];
+
+    function animateBannerColor() {
+        const banner = document.getElementById("mainBanner");
+        if (!banner) return;
+        
+        // Pick a random color
+        const randomIndex = Math.floor(Math.random() * BANNER_PALETTE.length);
+        const newColor = BANNER_PALETTE[randomIndex];
+        
+        banner.style.color = newColor;
+    }
+
+    // Start Animation
+    setInterval(animateBannerColor, 3000);
+    // ---------------------------------
+
     const API_URL = window.location.origin;
 
     function getClientId() {

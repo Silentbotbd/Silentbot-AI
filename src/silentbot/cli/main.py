@@ -11,7 +11,29 @@ from ..config import PROJECT_NAME, VERSION, PRO_UNLOCK_CODE
 from ..core.agent import Agent
 from ..core.db import db
 
-THEMES = [{"border":"green"},{"border":"magenta"},{"border":"blue"},{"border":"yellow"}]
+# Expanded Themes for "Smart and Smooth" variety
+THEMES = [
+    {"border": "green", "title_color": "green"},
+    {"border": "magenta", "title_color": "magenta"},
+    {"border": "blue", "title_color": "blue"},
+    {"border": "yellow", "title_color": "yellow"},
+    {"border": "cyan", "title_color": "cyan"},
+    {"border": "bright_red", "title_color": "bright_red"},
+    {"border": "bright_white", "title_color": "bright_white"},
+    {"border": "orange1", "title_color": "orange1"},
+    {"border": "deep_pink2", "title_color": "deep_pink2"},
+]
+
+BANNER_ART = r"""
+  ███████╗██╗██╗     ███████╗███╗   ██╗████████╗
+  ██╔════╝██║██║     ██╔════╝████╗  ██║╚══██╔══╝
+  ███████╗██║██║     █████╗  ██╔██╗ ██║   ██║
+  ╚════██║██║██║     ██╔══╝  ██║╚██╗██║   ██║
+  ███████║██║███████╗███████╗██║ ╚████║   ██║
+  ╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝
+              SILENT BOT AI/CLI
+"""
+
 console = Console()
 
 def get_cli_user_id():
@@ -35,7 +57,7 @@ def run_cli():
     # Ensure user exists in DB
     user = db.get_user_by_id(uid)
     if not user:
-        user = db.create_user(uid, username=f"cli_{uid[:8]}", role="cli")
+        user = db.create_user(uid, username=f"cli_{{uid[:8]}}", role="cli")
 
     is_pro = user["is_pro"]
 
@@ -46,8 +68,16 @@ def run_cli():
         print(res["response"])
         return
 
+    # Randomly select a theme for this session
     theme = random.choice(THEMES)
-    console.print(Panel(f"{PROJECT_NAME} v{VERSION} [PRO: {'ON' if is_pro else 'OFF'}]", border_style=theme["border"]))
+    border_color = theme["border"]
+    title_color = theme["title_color"]
+
+    # Display Banner with the chosen theme
+    console.print(Panel(
+        f"[{{title_color}}]{BANNER_ART}[/{{title_color}}][bold {{title_color}}]{PROJECT_NAME} v{VERSION}[/bold {{title_color}}] [PRO: {'ON' if is_pro else 'OFF'}]", 
+        border_style=border_color
+    ))
     console.print("[dim]Commands: /memory <fact>, /unlock <code>, /clear, /config, /exit[/dim]")
 
     current_sid = db.create_session(uid, "CLI Session")
@@ -78,7 +108,14 @@ def run_cli():
             
         if msg.startswith("/clear"):
             console.clear()
-            console.print(Panel(f"{PROJECT_NAME} v{VERSION}", border_style=theme["border"]))
+            # Re-pick theme on clear for "dynamic" feel
+            theme = random.choice(THEMES)
+            border_color = theme["border"]
+            title_color = theme["title_color"]
+            console.print(Panel(
+                f"[{{title_color}}]{BANNER_ART}[/{{title_color}}][bold {{title_color}}]{PROJECT_NAME} v{VERSION}[/bold {{title_color}}]", 
+                border_style=border_color
+            ))
             current_sid = db.create_session(uid, "CLI Session (Cleared)")
             continue
             
@@ -113,7 +150,7 @@ def run_cli():
                 db.increment_request_count(uid)
                 
                 # Display output
-                console.print(Panel(Markdown(res["response"]), title="SilentBot", border_style=theme["border"]))
+                console.print(Panel(Markdown(res["response"]), title="SilentBot", border_style=border_color))
                 
                 # Show citations/steps if available (Advanced Feature)
                 if "steps" in res and res["steps"]:
