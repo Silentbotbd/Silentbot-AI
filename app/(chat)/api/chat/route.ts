@@ -50,11 +50,11 @@ export const maxDuration = 60;
 let globalStreamContext: ResumableStreamContext | null = null;
 
 const getTokenlensCatalog = cache(
-  async (): Promise<ModelCatalog | undefined> =>{
-    try { 
-      return await fetchModels(export default
-nextConfig);
-     } {catch (err) {console.warn (
+  async (): Promise<ModelCatalog | undefined> => {
+    try {
+      return await fetchModels();
+    } catch (err) {
+      console.warn(
         "TokenLens: catalog fetch failed, using default catalog",
         err
       );
