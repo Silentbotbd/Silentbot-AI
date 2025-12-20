@@ -66,7 +66,14 @@ export const {
           return null;
         }
 
-        return { ...user, type: "regular", plan: (process.env.DEFAULT_USER_PLAN as PlanType) ?? "normal" };
+        const plan = (process.env.DEFAULT_USER_PLAN === "pro" ? "pro" : "normal") as PlanType;
+
+        return {
+          id: user.id,
+          email: user.email,
+          type: "regular",
+          plan,
+        };
       },
     }),
     Credentials({
@@ -74,7 +81,14 @@ export const {
       credentials: {},
       async authorize() {
         const [guestUser] = await createGuestUser();
-        return { ...guestUser, type: "guest", plan: (process.env.DEFAULT_USER_PLAN as PlanType) ?? "normal" };
+        const plan = (process.env.DEFAULT_USER_PLAN === "pro" ? "pro" : "normal") as PlanType;
+
+        return {
+          id: guestUser.id,
+          email: guestUser.email,
+          type: "guest",
+          plan,
+        };
       },
     }),
   ],
