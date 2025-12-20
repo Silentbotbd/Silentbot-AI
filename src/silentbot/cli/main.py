@@ -77,14 +77,34 @@ def run_cli():
 
     # Display Banner with the chosen theme
     console.print(Panel(
-        f"[{{title_color}}]{BANNER_ART}[/{{title_color}}][bold {{title_color}}]              {status_line}[/bold {{title_color}}]", 
+        f"[{title_color}]{BANNER_ART}[/{title_color}][bold {title_color}]              {status_line}[/bold {title_color}]", 
         border_style=border_color
     ))
-    console.print("[dim]Commands: /memory <fact>, /unlock <code>, /clear, /config, /exit[/dim]")
+    console.print("[dim]Commands: /memory <fact>, /unlock <code>, /clear, /config, /exit, /reset[/dim]")
 
-    current_sid = db.create_session(uid, "CLI Session")
+    # Resume Functionality (Phase 2)
+    sessions = db.list_sessions(uid)
+    current_sid = None
+    
+    if sessions:
+        last_session = sessions[0]
+        resume = Prompt.ask(f"Resume last chat? [dim]({last_session['title']})[/dim]", choices=["y", "n"], default="y")
+        if resume == "y":
+            current_sid = last_session["session_id"]
+            console.print(f"[cyan]Resumed session: {last_session['title']}[/cyan]")
+            # Show last few messages for context
+            history = db.get_history(current_sid, limit=5)
+            for h in history:
+                role_label = "[bold blue]You[/bold blue]" if h["role"] == "user" else "[bold magenta]Bot[/bold magenta]"
+                console.print(f"{role_label}: {h['content']}")
+    
+    if not current_sid:
+        current_sid = db.create_session(uid, "CLI Session")
 
     while True:
+        # Chat Logic instance
+        agent = Agent(mode="pro" if is_pro else "normal", user_id=uid)
+        
         msg = Prompt.ask("You").strip()
         if not msg: continue
         
@@ -122,15 +142,48 @@ def run_cli():
             current_sid = db.create_session(uid, "CLI Session (Cleared)")
             continue
             
+        if msg.startswith("/reset"):
+            current_sid = db.create_session(uid, "CLI Session (Reset)")
+            console.clear()
+            console.print("[yellow]Conversation history reset. New session started.[/yellow]")
+            console.print(Panel(
+                f"[{title_color}]{BANNER_ART}[/{title_color}][bold {title_color}]              {status_line}[/bold {title_color}]", 
+                border_style=border_color
+            ))
+            continue
+
+        if msg.startswith("/imagine"):
+            prompt = msg.replace("/imagine", "").strip()
+            if not prompt:
+                console.print("[red]Usage: /imagine <description>[/red]")
+                continue
+            console.print(f"[cyan]Imagining: {prompt}...[/cyan]")
+            # Placeholder for actual image generation tool
+            with console.status("Generating visuals...", spinner="aesthetic"):
+                res = agent.run(f"Generate an image description for: {prompt}", [])
+                console.print(Panel(f"🎨 [italic]Visualizing...[/italic]\n\n{res['response']}", title="Image Generator", border_style="cyan"))
+            continue
+
+        if msg.startswith("/analyze"):
+            query = msg.replace("/analyze", "").strip()
+            if not query:
+                console.print("[red]Usage: /analyze <topic/data>[/red]")
+                continue
+            console.print(f"[cyan]Analyzing: {query}...[/cyan]")
+            # Trigger a tool-heavy run
+            with console.status("Deep Analysis in progress...", spinner="bouncingBar"):
+                # Force pro-like depth for analyze
+                agent.max_steps = 10 
+                res = agent.run(f"Perform a deep analysis and technical breakdown of: {query}", [])
+                console.print(Panel(Markdown(res["response"]), title="Deep Analysis Result", border_style="blue"))
+            continue
+            
         if msg.startswith("/config"):
             console.print(f"User ID: {uid}")
             console.print(f"Pro Mode: {is_pro}")
             console.print(f"Requests: {user.get('req_count', 0)}")
             continue
 
-        # Chat Logic
-        agent = Agent(mode="pro" if is_pro else "normal", user_id=uid)
-        
         # Check Limits
         if not is_pro and user["req_count"] >= 30:
             console.print("[red]Free limit reached (30 requests). Use /unlock to upgrade.[/red]")
@@ -157,9 +210,17 @@ def run_cli():
                 
                 # Show citations/steps if available (Advanced Feature)
                 if "steps" in res and res["steps"]:
+                    steps_output = []
                     for step in res["steps"]:
-                        if "TOOL" in step.get("content", ""):
-                             console.print(f"[dim]{step['content']}[/dim]")
+                        if step["type"] == "tool_use":
+                            steps_output.append(f"🔧 [bold cyan]{step['content']}[/bold cyan]")
+                        elif step["type"] == "observation":
+                            steps_output.append(f"🔍 [dim]{step['content']}[/dim]")
+                        elif step["type"] == "thought":
+                            steps_output.append(f"🧠 [italic]{step['content']}[/italic]")
+                    
+                    if steps_output:
+                        console.print(Panel("\n".join(steps_output), title="Process & Citations", border_style="dim"))
 
             except Exception as e:
                 console.print(f"[bold red]Error:[/bold red] {e}")

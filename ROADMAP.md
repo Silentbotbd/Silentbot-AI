@@ -11,14 +11,14 @@ This roadmap outlines the future development and strategic direction of the Sile
 - [x] **CI/CD Pipelines:** GitHub Actions for automated testing and Docker builds.
 
 ## 🌟 Phase 2: Enhanced User Experience (Current Focus)
-- [ ] **Conversation Persistence:**
+- [x] **Conversation Persistence:**
   - Automatically save chat history to database.
   - Resume functionality in both CLI and Web UI.
-- [ ] **Advanced CLI Features:**
+- [x] **Advanced CLI Features:**
   - **Citation Display:** Show source citations for AI responses.
   - **Slash Commands:** Custom commands like `/imagine`, `/analyze`, `/reset`.
   - **Headless Mode:** Better UX for scripting and automation integration.
-- [ ] **Robustness:**
+- [x] **Robustness:**
   - Improved error handling for Windows environments.
   - Automatic retry logic for API connection failures.
 

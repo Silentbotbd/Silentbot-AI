@@ -89,3 +89,9 @@ def chat_endpoint(req: ChatRequest, user: Dict[str, Any] = Depends(get_current_u
 @router.get("/history")
 def get_history(session_id: str):
     return db.get_history(session_id)
+
+@router.get("/sessions")
+def list_sessions(user: Dict[str, Any] = Depends(get_current_user)):
+    if not user:
+        return []
+    return db.list_sessions(user["id"])

@@ -76,6 +76,8 @@ class Agent:
                     # Execute
                     obs = tools.execute(tool_name, tool_args)
                     
+                    steps_log.append({"step": step_i, "content": f"Observation: {obs[:200]}...", "type": "observation"})
+
                     # Feed back to AI
                     messages.append({"role": "assistant", "content": content})
                     messages.append({"role": "system", "content": f"OBSERVATION: {obs}"})
