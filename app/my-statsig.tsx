@@ -7,7 +7,7 @@ import { StatsigSessionReplayPlugin } from '@statsig/session-replay';
 
 export default function MyStatsig({ children }: { children: React.ReactNode }) {
   const { client } = useClientAsyncInit(
-    "client-EDu6e7fZJrL94zyHS8ssFYDD5UaIbKJmO4KJ8NW8fsP",
+    process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY || "client-EDu6e7fZJrL94zyHS8ssFYDD5UaIbKJmO4KJ8NW8fsP",
     { userID: 'a-user' }, 
     { plugins: [ new StatsigAutoCapturePlugin(), new StatsigSessionReplayPlugin() ] },
   );
