@@ -7,13 +7,47 @@ on:
 
 jobs:
   test:
-    timeout-minutes: 30
+    timeout-minutes: 60
     runs-on: ubuntu-latest
+
+    # 1. Setup Service Containers (Postgres & Redis)
+    # This ensures a clean, isolated environment for every test run.
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: silentbot_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
-      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-      POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+      # 2. Configure Environment Variables to use Local Services
+      # We override the secrets for DB/Redis to use the fresh containers.
+      POSTGRES_URL: postgresql://postgres:password@localhost:5432/silentbot_test
+      REDIS_URL: redis://localhost:6379
+      # Mock Auth Secret if not provided
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'complex_test_secret_key_12345' }}
+      # Blob Token must be real (or mocked if tests support it)
       BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
-      REDIS_URL: ${{ secrets.REDIS_URL }}
+      # Ensure CI flag is set
+      CI: true
 
     steps:
       - uses: actions/checkout@v4
@@ -43,11 +77,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: "pnpm"
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -62,12 +91,22 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium
 
+      # 3. Build & Migrate
+      # This step is CRITICAL. It runs `tsx lib/db/migrate` (as per package.json "build" script)
+      # which initializes the database schema in our fresh Postgres service.
+      # It also ensures the app builds correctly.
+      - name: Build and Migrate DB
+        run: pnpm build
+
+      # 4. Run Tests
+      # The webServer in playwright.config.ts will start `pnpm dev`
+      # which will connect to our ready-to-go database.
       - name: Run Playwright tests
         run: pnpm test
 
       - uses: actions/upload-artifact@v4
-        if: always() && !cancelled()
+        if: always()
         with:
           name: playwright-report
           path: playwright-report/
-          retention-days: 7
+          retention-days: 30
