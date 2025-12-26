@@ -14,6 +14,14 @@ OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+# --- DATABASE CONFIG ---
+DB_TYPE = os.getenv("DB_TYPE", "sqlite") # sqlite or mysql
+DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
+DB_PORT = os.getenv("DB_PORT", "3306")
+DB_NAME = os.getenv("DB_NAME", "silentbot")
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASS = os.getenv("DB_PASS", "")
+
 # --- SETTINGS ---
 DEFAULT_MODEL = os.getenv("SILENTBOT_MODEL", "gpt-4o") 
 # If keys are missing, system will fallback to local/mock or error gracefully

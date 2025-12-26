@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SilentBot AI - The Next Gen Artificial Intelligence Platform. Chat with advanced AI, analyze files, and boost productivity." />
+  <meta name="keywords" content="AI, Artificial Intelligence, Chatbot, File Analysis, SilentBot, Machine Learning" />
+  <meta name="author" content="SilentBot Team" />
+  <meta name="theme-color" content="#030712" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://silentbotai.com/" />
+  <meta property="og:title" content="SilentBot AI | Next Gen Intelligence" />
+  <meta property="og:description" content="Experience the power of advanced AI with SilentBot. Secure, fast, and intelligent." />
+  <meta property="og:image" content="https://silentbotai.com/assets/og-image.jpg" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://silentbotai.com/" />
+  <meta property="twitter:title" content="SilentBot AI | Next Gen Intelligence" />
+  <meta property="twitter:description" content="Experience the power of advanced AI with SilentBot. Secure, fast, and intelligent." />
+  <meta property="twitter:image" content="https://silentbotai.com/assets/og-image.jpg" />
+
+  <title>SilentBot AI | Next Gen Intelligence</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Global Site Tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <style>
+    :root {
+      --bg-color: #030712;
+      --card-bg: rgba(17, 24, 39, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #06b6d4; /* Cyan 500 */
+      --primary-glow: rgba(6, 182, 212, 0.4);
+      --secondary: #8b5cf6; /* Violet 500 */
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --user-bubble: #1f2937;
+      --bot-bubble: rgba(6, 182, 212, 0.1);
+      --success: #10b981;
+      --error: #ef4444;
+      --font-family: 'Inter', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.08), transparent 25%), 
+        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* --- Header --- */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--card-border);
+      backdrop-filter: blur(10px);
+      background: rgba(3, 7, 18, 0.6);
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .status-pill {
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+    .status-pill.active { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .status-pill.active .status-dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
+
+    /* --- Main Chat Area --- */
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      position: relative;
+    }
+
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-container::-webkit-scrollbar { width: 6px; }
+    .chat-container::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+
+    .welcome-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      opacity: 0.8;
+      margin-top: -40px;
+    }
+    
+    .welcome-screen h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(to right, #fff, #9ca3af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      max-width: 85%;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+    .message.bot { align-self: flex-start; }
+
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .user .avatar { background: #374151; color: #fff; }
+    .bot .avatar { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 12px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      position: relative;
+      word-wrap: break-word;
+    }
+
+    .user .bubble {
+      background: var(--user-bubble);
+      color: #fff;
+      border-bottom-right-radius: 2px;
+    }
+
+    .bot .bubble {
+      background: var(--bot-bubble);
+      color: #e5e7eb;
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      border-bottom-left-radius: 2px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* --- Input Area --- */
+    .input-area {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: white;
+      font-family: inherit;
+      font-size: 1rem;
+      resize: none;
+      max-height: 120px;
+      padding: 12px;
+      outline: none;
+    }
+
+    textarea::placeholder { color: #6b7280; }
+
+    .btn-icon {
+      background: transparent;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover { background: rgba(255,255,255,0.05); color: white; }
+
+    .btn-send {
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-send:hover { transform: translateY(-1px); box-shadow: 0 0 10px var(--primary-glow); }
+
+    /* --- Modal / Pro Unlock --- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      padding: 2rem;
+      border-radius: 16px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    }
+    .modal h2 { margin-top: 0; color: white; }
+    .input-code {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      color: white;
+      margin: 1rem 0;
+      text-align: center;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+    }
+    .btn-unlock {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Utility */
+    .hidden { display: none !important; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="/" class="brand" aria-label="SilentBot AI Home">
+      <div class="brand-logo" aria-hidden="true">SB</div>
+      <span>SilentBot AI</span>
+    </a>
+    
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <button id="statusPill" class="status-pill" onclick="openUnlockModal()" aria-label="Current Status: Free Mode. Click to unlock Pro.">
+        <div class="status-dot"></div>
+        <span id="statusText">Free Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Chat -->
+  <main>
+    <div class="chat-container" id="chatContainer" role="log" aria-live="polite">
+      <!-- Welcome Screen -->
+      <div class="welcome-screen" id="welcomeScreen">
+        <div class="brand-logo" style="width: 64px; height: 64px; font-size: 24px; margin-bottom: 20px;">SB</div>
+        <h1>How can I help you today?</h1>
+        <p style="color: var(--text-muted);">I can analyze data, generate code, or chat about anything.</p>
+      </div>
+      <!-- Messages will appear here -->
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area">
+      <input type="file" id="fileInput" hidden aria-hidden="true">
+      <button class="btn-icon" title="Upload File" onclick="document.getElementById('fileInput').click()" aria-label="Upload File">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+        </svg>
+      </button>
+      
+      <textarea id="userInput" placeholder="Message SilentBot..." rows="1" aria-label="Message Input"></textarea>
+      
+      <button class="btn-send" id="sendBtn" aria-label="Send Message">
+        Send
+      </button>
+    </div>
+    <div id="fileStatus" style="font-size: 12px; color: var(--primary); margin-top: 5px; height: 15px; padding-left: 10px;" role="status"></div>
+  </main>
+
+  <!-- Unlock Modal -->
+  <div class="modal-overlay" id="unlockModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <h2 id="modalTitle">Unlock Pro Mode</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Enter your production key to access unlimited features.</p>
+      <input type="text" id="unlockCode" class="input-code" placeholder="XXXX-XXXX-XXXX" aria-label="Activation Code">
+      <button class="btn-unlock" onclick="attemptUnlock()">Activate License</button>
+      <div id="unlockMsg" style="margin-top: 10px; font-size: 0.8rem;" role="alert"></div>
+      <button onclick="closeUnlockModal()" style="background:none; border:none; color:#6b7280; margin-top:10px; cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // --- Configuration ---
+    // In production, this can be empty string if the API is on the same domain
+    const API_URL = ""; 
+
+    let clientId = localStorage.getItem("silentbotClientId") || crypto.randomUUID();
+    localStorage.setItem("silentbotClientId", clientId);
+
+    const chatContainer = document.getElementById('chatContainer');
+    const userInput = document.getElementById('userInput');
+    const welcomeScreen = document.getElementById('welcomeScreen');
+
+    // Auto-resize textarea
+    userInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+      if(this.value === '') this.style.height = 'auto';
+    });
+
+    // Enter to send
+    userInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+    // Initial Status Check
+    checkStatus();
+
+    async function checkStatus() {
+      try {
+        const res = await fetch(`${API_URL}/api/users/me`, {
+          headers: { "X-Client-Id": clientId }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          updateStatusUI(data.is_pro);
+        }
+      } catch (e) { console.log("Offline mode or init error"); }
+    }
+
+    function updateStatusUI(isPro) {
+      const pill = document.getElementById('statusPill');
+      const text = document.getElementById('statusText');
+      if (isPro) {
+        pill.classList.add('active');
+        text.textContent = "Pro Active";
+      } else {
+        pill.classList.remove('active');
+        text.textContent = "Free Mode";
+      }
+    }
+
+    function addMessage(text, sender) {
+      welcomeScreen.classList.add('hidden');
+      
+      const div = document.createElement('div');
+      div.className = `message ${sender}`;
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.textContent = sender === 'user' ? 'U' : 'SB';
+      avatar.ariaLabel = sender === 'user' ? 'User' : 'SilentBot';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+      
+      div.appendChild(avatar);
+      div.appendChild(bubble);
+      
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      return bubble; // Return for updates
+    }
+
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      
+      addMessage(text, 'user');
+
+      // Bot thinking placeholder
+      const botBubble = addMessage("Thinking...", 'bot');
+      botBubble.style.opacity = "0.7";
+
+      try {
+        const res = await fetch(`${API_URL}/api/chat/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Client-Id": clientId
+          },
+          body: JSON.stringify({
+            mode: "auto",
+            messages: [{ role: "user", content: text }]
+          })
+        });
+
+        if (!res.ok) throw new Error("Server Error");
+        
+        const data = await res.json();
+        botBubble.style.opacity = "1";
+        botBubble.textContent = data.response;
+        
+      } catch (e) {
+        botBubble.textContent = "Connection Error. Please check your internet or server status.";
+        botBubble.style.color = "var(--error)";
+      }
+    }
+
+    // --- File Upload ---
+    document.getElementById('fileInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      
+      const status = document.getElementById('fileStatus');
+      status.textContent = `Uploading ${file.name}...`;
+      
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch(`${API_URL}/api/files/upload`, {
+          method: "POST",
+          headers: { "X-Client-Id": clientId },
+          body: formData
+        });
+        if(res.ok) {
+          status.textContent = "File uploaded successfully.";
+          setTimeout(() => status.textContent = "", 3000);
+        } else {
+          status.textContent = "Upload failed.";
+          status.style.color = "var(--error)";
+        }
+      } catch(e) {
+        status.textContent = "Error uploading file.";
+      }
+    });
+
+    // --- Modal Logic ---
+    function openUnlockModal() { document.getElementById('unlockModal').style.display = 'flex'; }
+    function closeUnlockModal() { document.getElementById('unlockModal').style.display = 'none'; }
+    
+    async function attemptUnlock() {
+      const code = document.getElementById('unlockCode').value;
+      const msg = document.getElementById('unlockMsg');
+      
+      const res = await fetch(`${API_URL}/api/users/activate?code=${encodeURIComponent(code)}`, {
+        method: "POST",
+        headers: { "X-Client-Id": clientId }
+      });
+      
+      if(res.ok) {
+        msg.textContent = "Success! Pro features unlocked.";
+        msg.style.color = "var(--success)";
+        updateStatusUI(true);
+        setTimeout(closeUnlockModal, 1500);
+      } else {
+        msg.textContent = "Invalid code. Try again.";
+        msg.style.color = "var(--error)";
+      }
+    }
+  </script>
+</body>
+</html>
