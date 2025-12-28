@@ -27,7 +27,6 @@ import { getWeather } from "@/lib/ai/tools/get-weather";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { updateDocument } from "@/lib/ai/tools/update-document";
 import { isProductionEnvironment } from "@/lib/constants";
-import { siteUrl } from "@/lib/site";
 import {
   createStreamId,
   deleteChatById,
@@ -307,7 +306,7 @@ export async function POST(request: Request) {
       return new ChatSDKError("bad_request:activate_gateway").toResponse();
     }
 
-    console.error(`Unhandled error in chat API:${siteUrl}/api/chat`, error, { vercelId });
+    console.error("Unhandled error in chat API:https://silentbotai.com/api/chat", error, { vercelId });
     return new ChatSDKError("offline:chat").toResponse();
   }
 }

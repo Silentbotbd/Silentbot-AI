@@ -3,13 +3,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import { siteUrl } from "@/lib/site";
 
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL("https://silentbot-ai.com"),
   title: "Silentbot AI - Enterprise Chat Assistant",
   description: "Enterprise-grade AI chatbot with durable workflows and real-time observability.",
 };
