@@ -6,60 +6,67 @@
 Silentbot AI is a production-grade AI Chatbot platform built with Next.js 16, Vercel AI SDK, and Enterprise-grade observability. It supports multi-model routing (Google Gemini, xAI, OpenAI), resumable streams, and full session replay analytics.
 
 ## 🚀 Quick Start (Production)
+http://silentbotai.com
+http://silentbot.online 
 
-### Option A: Docker (Recommended)
-You can deploy Silentbot AI anywhere Docker is supported.
+# Silentbot-AI
 
-1.  **Build the image:**
-    ```bash
-    docker build -t silentbot-ai .
-    ```
-2.  **Run the container:**
-    ```bash
-    docker run -d -p 3000:3000 --env-file .env silentbot-ai
-    ```
+## System Architecture
 
-### Option B: Vercel (Managed)
-1.  Import this repository to Vercel.
-2.  Add the required Environment Variables.
-3.  Deploy.
+Silentbot-AI is organized as a multi-service platform that connects user-facing experiences to an AI orchestration layer and persistent data stores.
 
-## 🛠️ Development Setup
+### Services
 
-1.  **Install dependencies:**
-    ```bash
-    pnpm install
-    ```
-2.  **Setup Database:**
-    Ensure you have a Postgres database running, then:
-    ```bash
-    pnpm db:migrate
-    ```
-3.  **Run Development Server:**
-    ```bash
-    pnpm dev
-    ```
-    Access the Enterprise Dashboard at `http://localhost:3000`.
+- **Web app (`apps/web`)**: React + Vite frontend that renders the user experience and calls the backend API.
+- **Backend API (`apps/backend`)**: FastAPI service that handles orchestration, session management, tool routing, and exposes health endpoints.
+- **Model gateway (planned)**: Provider connectors for LLMs, tool calling, and evaluation workflows.
+- **Worker/queue (planned)**: Background processing for ingestion, indexing, and scheduled tasks.
 
-## 🔑 Environment Variables
+### Data Stores
 
-Copy `.env.example` to `.env` and fill in the following:
+- **Primary database (planned)**: PostgreSQL for user data, conversations, and metadata.
+- **Vector store (planned)**: pgvector or a managed vector database for embeddings and retrieval.
+- **Object storage (planned)**: Blob store for documents, logs, and model artifacts.
 
-| Variable | Description |
-| :--- | :--- |
-| `GEMINI_API_KEY` | Your Google AI Studio API Key. |
-| `POSTGRES_URL` | PostgreSQL connection string. |
-| `REDIS_URL` | Redis connection string. |
-| `AUTH_SECRET` | Random string for session encryption. |
-| `NEXT_PUBLIC_STATSIG_CLIENT_KEY` | Statsig Client Key for analytics. |
+### AI Pipeline
 
-## 🏗️ Architecture
+1. **Ingestion**: Capture user inputs and documents via the API.
+2. **Indexing**: Generate embeddings and store them in the vector store.
+3. **Retrieval**: Fetch relevant context for the user query.
+4. **Generation**: Call the model gateway and assemble the response.
+5. **Delivery**: Return results to the web app and persist conversation state.
 
-*   **Frontend:** Next.js 16 (App Router), TailwindCSS, Shadcn/UI
-*   **AI Engine:** Vercel AI SDK (Streaming, Tools, Generative UI)
-*   **Database:** PostgreSQL (via Drizzle ORM) + Redis (Session Store)
-*   **Analytics:** Statsig (Feature Flags & Session Replay) + Vercel Analytics
-*   **Observability:** OpenTelemetry (OTel)
+## Components and Interaction
 
-## 📄 License
-Private Enterprise License.
+1. The **web app** calls the **backend API** for chat, ingestion, and retrieval endpoints.
+2. The **backend API** persists metadata in the **primary database** and triggers **worker jobs**.
+3. **Workers** create embeddings, store them in the **vector store**, and update the **primary database**.
+4. The **backend API** queries the **vector store** and **model gateway** to produce responses.
+
+## Repository Layout
+
+```
+apps/
+  backend/   # FastAPI service (entry: app/main.py)
+  web/       # React web app (entry: src/main.jsx)
+```
+
+## Getting Started
+
+### Backend
+
+```bash
+cd apps/backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+### Frontend
+
+```bash
+cd apps/web
+npm install
+npm run dev
+``
