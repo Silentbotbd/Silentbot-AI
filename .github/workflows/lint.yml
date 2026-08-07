@@ -1,25 +1,8 @@
-name: Lint
-on:
-  push:
+- name: Install dependencies
+  run: npm ci
 
-jobs:
-  build:
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        node-version: [20]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.12.3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install
-      - name: Run lint
-        run: pnpm lint
+- name: Format files (auto-fix)
+  run: npx prettier --write .
+
+- name: Lint (check)
+  run: npm run lint   # or npx prettier --check . && npx eslint . --ext .ts,.tsx --max-warnings=0
